@@ -1,0 +1,7 @@
+config:
+  aws:region: us-west-2
+  cdk-converted:instanceSize: xlarge2
+  cdk-converted:cpuType: ARM64
+  cdk-converted:logLevel: INFO
+environment:
+  - aws-creds/neo-demo-dev
