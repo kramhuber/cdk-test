@@ -1,0 +1,2 @@
+# This directory is for assets that will be deployed to the S3 bucket
+# and downloaded to EC2 instances during initialization.
