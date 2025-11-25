@@ -24,20 +24,20 @@ new EC2Stack(app, 'EC2-Dev', {
   description: 'EC2 Instance - Development Environment',
 });
 
-// Staging environment
-new EC2Stack(app, 'EC2-Stg', {
-  ...baseStackProps,
-  instanceSize: 'XLARGE',
-  env,
-  description: 'EC2 Instance - Staging Environment',
-});
+// // Staging environment
+// new EC2Stack(app, 'EC2-Stg', {
+//   ...baseStackProps,
+//   instanceSize: 'XLARGE',
+//   env,
+//   description: 'EC2 Instance - Staging Environment',
+// });
 
-// Production environment
-new EC2Stack(app, 'EC2-Prod', {
-  ...baseStackProps,
-  instanceSize: 'XLARGE2',
-  env,
-  description: 'EC2 Instance - Production Environment',
-});
+// // Production environment
+// new EC2Stack(app, 'EC2-Prod', {
+//   ...baseStackProps,
+//   instanceSize: 'XLARGE2',
+//   env,
+//   description: 'EC2 Instance - Production Environment',
+// });
 
 app.synth();
