@@ -1,4 +1,4 @@
-import { RemovalPolicy, Duration, Stack } from 'aws-cdk-lib';
+import { RemovalPolicy } from 'aws-cdk-lib';
 import {
   Vpc,
   SecurityGroup,
@@ -6,11 +6,6 @@ import {
   InstanceType,
   InstanceClass,
   InstanceSize,
-  CloudFormationInit,
-  InitConfig,
-  InitFile,
-  InitCommand,
-  UserData,
   MachineImage,
   AmazonLinuxCpuType,
 } from 'aws-cdk-lib/aws-ec2';
@@ -83,21 +78,6 @@ export class ServerResources extends Construct {
     // Grant the EC2 role access to the bucket
     assetBucket.grantReadWrite(serverRole);
 
-    const userData = UserData.forLinux();
-
-    // Add user data that is used to configure the EC2 instance
-    userData.addCommands(
-      'yum update -y',
-      'curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo',
-      'curl -sL https://rpm.nodesource.com/setup_18.x | sudo -E bash - ',
-      'yum install -y amazon-cloudwatch-agent nodejs python3-pip zip unzip docker yarn',
-      'sudo systemctl enable docker',
-      'sudo systemctl start docker',
-      'mkdir -p /home/ec2-user/sample',
-      'aws s3 cp s3://' +
-        assetBucket.bucketName +
-        '/sample /home/ec2-user/sample --recursive',
-    );
 
     // Create a Security Group for the EC2 instance.  This group will allow SSH access to the EC2 instance
     const ec2InstanceSecurityGroup = new SecurityGroup(
@@ -141,44 +121,7 @@ export class ServerResources extends Construct {
         cachedInContext: false,
         cpuType: cpuType,
       }),
-      userData: userData,
       securityGroup: ec2InstanceSecurityGroup,
-      init: CloudFormationInit.fromConfigSets({
-        configSets: {
-          default: ['config'],
-        },
-        configs: {
-          config: new InitConfig([
-            InitFile.fromObject('/etc/config.json', {
-              // Use CloudformationInit to create an object on the EC2 instance
-              STACK_ID: Stack.of(this).artifactId,
-            }),
-            InitFile.fromFileInline(
-              // Use CloudformationInit to copy a file to the EC2 instance
-              '/tmp/amazon-cloudwatch-agent.json',
-              './lib/resources/server/config/amazon-cloudwatch-agent.json',
-            ),
-            InitFile.fromFileInline(
-              '/etc/config.sh',
-              'lib/resources/server/config/config.sh',
-            ),
-            InitFile.fromString(
-              // Use CloudformationInit to write a string to the EC2 instance
-              '/home/ec2-user/.ssh/authorized_keys',
-              props.sshPubKey + '\n',
-            ),
-            InitCommand.shellCommand('chmod +x /etc/config.sh'), // Use CloudformationInit to run a shell command on the EC2 instance
-            InitCommand.shellCommand('/etc/config.sh'),
-          ]),
-        },
-      }),
-
-      initOptions: {
-        timeout: Duration.minutes(10),
-        includeUrl: true,
-        includeRole: true,
-        printLog: true,
-      },
       role: serverRole,
     });
 
