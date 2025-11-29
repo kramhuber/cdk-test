@@ -1,4 +1,4 @@
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput, Tags } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { VPCResources } from './constructs/vpc';
 import { ServerResources } from './constructs/server';
@@ -14,6 +14,9 @@ export class EC2Stack extends Stack {
 
     // Validate environment variables
     envValidator(props);
+
+    // Add owner tag to all resources in this stack
+    Tags.of(this).add('owner', 'mark-neo');
 
     // Create VPC and Security Group
     const vpcResources = new VPCResources(this, 'VPC');
